@@ -1,0 +1,37 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/security
+     http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<http auto-config="true">
+
+		<!-- intercept details for restricted and open URL -->
+		<intercept-url pattern="/" access="permitAll" />
+		<intercept-url pattern="/index" access="permitAll" />
+		<intercept-url pattern="/UserHome" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/chat1" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/AdminHome" access="hasRole('ROLE_ADMIN')" />
+
+		<!-- Providing login and logout settings -->
+		<form-login login-page="/Login" login-processing-url="/login"
+			username-parameter="email" password-parameter="password"
+			authentication-success-handler-ref="successHandler"
+			authentication-failure-url="/Login?error" />
+		<logout logout-url="/perform_logout" delete-cookies="true"
+			logout-success-url="/index?logout" />
+		<csrf disabled="true" />
+	</http>
+<!-- Providing datasource details and user details for login -->
+	<authentication-manager>
+		<authentication-provider>
+			<jdbc-user-service data-source-ref="dataSource"
+				users-by-username-query="select email,password, enabled from userdetails where email=?"
+				authorities-by-username-query="select email, role from userdetails where email =?  " />
+		</authentication-provider>
+
+	</authentication-manager>
+
+	<!-- Creating bean of SuccessHandler class -->
+	<beans:bean id="successHandler" class="com.latzchaat.handler.SuccessHandler" />
+</beans:beans>

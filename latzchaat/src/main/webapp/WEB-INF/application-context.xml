@@ -1,0 +1,104 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd
+ http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<mvc:annotation-driven />
+	<context:component-scan base-package="com.latzchaat" />
+	
+	<!-- Data Source Declaration -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.h2.Driver" />
+		<!-- <property name="url" value="jdbc:h2:tcp://localhost/~/latzchaatDataBase11" /> -->
+		<property name="url" value="jdbc:h2:tcp://localhost/~/latzchaatDataBase11" />
+		<property name="username" value="sa" />
+		<property name="password" value="" />
+	</bean>
+
+
+	<!-- Session Factory Declaration -->
+		<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>com.latzchaat.model.Blogs</value>
+				<value>com.latzchaat.model.UserDetails</value>
+				<value>com.latzchaat.model.Jobs</value>
+			</list>
+		</property>
+
+		<!-- Setting Hibenate properties -->
+		<property name="hibernateProperties">
+			<props>
+				<prop key="lazy">false</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+
+
+
+	<!-- Creating bean for UserDAO and sending session object to UserDAO -->
+	<bean id="userDAO" class="com.latzchaat.dao.UserDAO">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+
+	<!-- Creating bean for UserService and sending DAO object to UserService -->
+	<bean id="userService" class="com.latzchaat.service.UserService">
+		<property name="userDAO" ref="userDAO"></property>
+	</bean>
+	
+	
+	
+	<!-- Creating bean for BlogsDAO and sending session object to BlogsDAO -->
+	<bean id="blogDAO" class="com.latzchaat.dao.BlogDAO">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+
+	<!-- Creating bean for BlogService and sending DAO object to BlogService -->
+	<bean id="BlogsService" class="com.latzchaat.service.BlogsService">
+		<property name="blogDAO" ref="blogDAO"></property>
+	</bean>
+	
+
+	
+	<!-- Creating bean for JobDAO and sending session object to JobDAO -->
+	<bean id="jobDAO" class="com.latzchaat.dao.JobDAO">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+
+
+	<!-- Creating bean for BlogService and sending DAO object to JobService -->
+	<bean id="jobService" class="com.latzchaat.service.JobService">
+		<property name="jobDAO" ref="jobDAO"></property>
+	</bean>
+	
+
+	
+	
+	<context:component-scan base-package="com.latzchaat" />
+	<context:annotation-config />
+
+	<!-- Enable the configuration of transactional behavior based on annotations -->
+	<tx:annotation-driven transaction-manager="txManager" />
+	<!-- Transaction Manager is defined -->
+	<bean id="txManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+</beans>
